@@ -1,0 +1,40 @@
+name = "websix-backend"
+main = "src/index.ts"
+compatibility_date = "2024-09-01"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = true
+
+# Public config (non-secret). Secrets are set with `wrangler secret put`.
+[vars]
+APP_URL = "https://websix.site"
+OWNER_EMAIL = "websixagency@gmail.com"
+# Resend needs a verified sender. For instant testing you may use "onboarding@resend.dev";
+# after verifying websix.site in Resend, switch to e.g. "Websix <hello@websix.site>".
+FROM_EMAIL = "Websix <onboarding@resend.dev>"
+
+# D1 database (id filled in after `wrangler d1 create websix-db` or via the Cloudflare API).
+[[d1_databases]]
+binding = "DB"
+database_name = "websix-db"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"
+
+# KV for sessions / cache (id filled in after `wrangler kv namespace create CACHE`).
+[[kv_namespaces]]
+binding = "CACHE"
+id = "REPLACE_WITH_KV_NAMESPACE_ID"
+
+# R2 for files/backups (create with `wrangler r2 bucket create websix-media`).
+[[r2_buckets]]
+binding = "MEDIA"
+bucket_name = "websix-media"
+
+# Daily cron (06:00 UTC) for reminders/backups/monitoring.
+[triggers]
+crons = ["0 6 * * *"]
+
+# Secrets to set (never commit these):
+#   wrangler secret put JWT_SECRET
+#   wrangler secret put RESEND_API_KEY
+#   wrangler secret put TURNSTILE_SECRET      # optional (bot protection on the quote form)
+#   wrangler secret put STRIPE_SECRET_KEY     # optional (payments)
+#   wrangler secret put STRIPE_WEBHOOK_SECRET # optional (payments)
