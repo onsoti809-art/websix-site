@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Websix — Premium Websites for Growing Businesses</title>
+<meta name="description" content="Websix is a boutique web studio building fast, mobile-first, SEO-ready websites for restaurants, salons, contractors, clinics and local businesses. Free website audit. You own your domain and code." />
+<link rel="canonical" href="https://websix.site/" />
+<meta name="theme-color" content="#0b0b12" />
+
+<!-- Open Graph / Twitter -->
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Websix" />
+<meta property="og:title" content="Websix — Premium Websites for Growing Businesses" />
+<meta property="og:description" content="Fast, mobile-first, SEO-ready websites for local & small businesses. Free website audit — you own your domain and code." />
+<meta property="og:url" content="https://websix.site/" />
+<meta property="og:image" content="https://websix.site/assets/og.png" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Websix — Premium Websites for Growing Businesses" />
+<meta name="twitter:description" content="Fast, mobile-first, SEO-ready websites for local & small businesses. Free website audit." />
+<meta name="twitter:image" content="https://websix.site/assets/og.png" />
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+
+<!-- Structured data -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ProfessionalService",
+  "name": "Websix",
+  "description": "Boutique web design & development studio building fast, mobile-first, SEO-ready websites for local and small businesses.",
+  "url": "https://websix.site",
+  "email": "websixagency@gmail.com",
+  "image": "https://websix.site/assets/og.png",
+  "areaServed": "United States",
+  "serviceType": ["Website Design", "Website Development", "Website Redesign", "E-commerce", "SEO", "Website Maintenance", "Domain & Hosting Setup"],
+  "priceRange": "$$"
+}
+</script>
+
+<style>
+  :root{
+    --bg:#0b0b12; --ink:#12121c; --panel:#ffffff; --panel-2:#f6f7fb;
+    --text:#171722; --muted:#5c5c6e; --line:#e7e8ef;
+    --ind:#6366f1; --vio:#8b5cf6; --teal:#14b8a6;
+    --grad:linear-gradient(120deg,#6366f1 0%,#8b5cf6 48%,#14b8a6 100%);
+    --radius:18px; --maxw:1160px;
+    --shadow:0 18px 50px -22px rgba(20,20,45,.35);
+    --shadow-sm:0 6px 20px -12px rgba(20,20,45,.35);
+    --font:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    --display:'Space Grotesk',var(--font);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;font-family:var(--font);color:var(--text);background:var(--panel);line-height:1.6;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  img{max-width:100%;display:block}
+  h1,h2,h3{font-family:var(--display);line-height:1.08;letter-spacing:-.02em;margin:0}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 clamp(20px,5vw,40px)}
+  .eyebrow{font-family:var(--display);font-size:.8rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ind);font-weight:600;margin:0 0 14px}
+  .grad-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .btn{display:inline-flex;align-items:center;gap:.5em;font-weight:600;font-size:.98rem;padding:.85em 1.35em;border-radius:999px;border:1px solid transparent;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease,background .18s ease,color .18s;white-space:nowrap}
+  .btn-primary{background:var(--grad);color:#fff;box-shadow:0 10px 26px -10px rgba(99,102,241,.7)}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 16px 34px -10px rgba(99,102,241,.8)}
+  .btn-ghost{background:transparent;border-color:rgba(255,255,255,.28);color:#fff}
+  .btn-ghost:hover{background:rgba(255,255,255,.08)}
+  .btn-dark{background:var(--ink);color:#fff}
+  .btn-dark:hover{transform:translateY(-2px);box-shadow:var(--shadow-sm)}
+
+  /* Header */
+  header.site{position:sticky;top:0;z-index:50;background:rgba(11,11,18,.72);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.08)}
+  .nav{display:flex;align-items:center;justify-content:space-between;height:70px}
+  .brand{display:flex;align-items:center;gap:.6em;font-family:var(--display);font-weight:700;font-size:1.2rem;color:#fff}
+  .brand svg{width:30px;height:30px;flex:none}
+  .nav-links{display:flex;align-items:center;gap:28px}
+  .nav-links a{color:rgba(255,255,255,.82);font-size:.95rem;font-weight:500;transition:color .15s}
+  .nav-links a:hover{color:#fff}
+  .nav-cta{display:flex;align-items:center;gap:14px}
+  .menu-btn{display:none;background:none;border:0;color:#fff;cursor:pointer;padding:8px}
+  .menu-btn svg{width:26px;height:26px}
+
+  /* Hero */
+  .hero{position:relative;background:var(--bg);color:#fff;overflow:hidden;padding:clamp(70px,11vw,130px) 0 clamp(80px,12vw,140px)}
+  .hero::before{content:"";position:absolute;inset:0;background:
+    radial-gradient(60% 55% at 78% 12%,rgba(139,92,246,.32),transparent 60%),
+    radial-gradient(50% 50% at 12% 88%,rgba(20,184,166,.22),transparent 60%);
+    pointer-events:none}
+  .hero-hex{position:absolute;right:-90px;top:-40px;width:min(560px,60vw);opacity:.5;pointer-events:none}
+  .hero .wrap{position:relative;z-index:2;max-width:900px}
+  .hero h1{font-size:clamp(2.4rem,6vw,4.4rem);font-weight:700}
+  .hero p.lede{font-size:clamp(1.05rem,2vw,1.3rem);color:rgba(255,255,255,.82);max-width:640px;margin:22px 0 0}
+  .hero-cta{display:flex;flex-wrap:wrap;gap:14px;margin-top:36px}
+  .hero-badges{display:flex;flex-wrap:wrap;gap:10px 26px;margin-top:40px;color:rgba(255,255,255,.72);font-size:.92rem}
+  .hero-badges span{display:inline-flex;align-items:center;gap:.5em}
+  .hero-badges svg{width:18px;height:18px;color:var(--teal);flex:none}
+
+  section{padding:clamp(64px,9vw,110px) 0}
+  .section-head{max-width:720px;margin:0 0 clamp(36px,5vw,56px)}
+  .section-head h2{font-size:clamp(1.9rem,3.6vw,2.9rem);font-weight:700}
+  .section-head p{color:var(--muted);font-size:1.08rem;margin:16px 0 0}
+  .alt{background:var(--panel-2)}
+
+  /* Value cards */
+  .grid{display:grid;gap:22px}
+  .cols-4{grid-template-columns:repeat(4,1fr)}
+  .cols-3{grid-template-columns:repeat(3,1fr)}
+  .cols-2{grid-template-columns:repeat(2,1fr)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:26px;transition:transform .2s ease,box-shadow .2s ease,border-color .2s}
+  .card:hover{transform:translateY(-4px);box-shadow:var(--shadow);border-color:transparent}
+  .ic{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,rgba(99,102,241,.14),rgba(20,184,166,.14));margin-bottom:16px}
+  .ic svg{width:24px;height:24px;color:var(--ind)}
+  .card h3{font-size:1.16rem;margin-bottom:8px}
+  .card p{color:var(--muted);font-size:.97rem;margin:0}
+
+  /* Process */
+  .steps{counter-reset:step;display:grid;gap:20px;grid-template-columns:repeat(5,1fr)}
+  .step{position:relative;padding:26px 20px;border-radius:var(--radius);background:var(--panel);border:1px solid var(--line)}
+  .step::before{counter-increment:step;content:"0" counter(step);font-family:var(--display);font-weight:700;font-size:1.5rem;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;display:block;margin-bottom:10px}
+  .step h3{font-size:1.06rem;margin-bottom:6px}
+  .step p{color:var(--muted);font-size:.92rem;margin:0}
+
+  /* Pricing */
+  .price-grid{display:grid;gap:22px;grid-template-columns:repeat(3,1fr)}
+  .price{display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:28px;position:relative}
+  .price.feature{border-color:transparent;box-shadow:var(--shadow);outline:2px solid transparent;background:
+     linear-gradient(var(--panel),var(--panel)) padding-box,var(--grad) border-box;border:2px solid transparent}
+  .price .tag{position:absolute;top:-13px;left:28px;background:var(--grad);color:#fff;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:5px 12px;border-radius:999px}
+  .price h3{font-size:1.2rem}
+  .price .amt{font-family:var(--display);font-weight:700;font-size:2.1rem;margin:12px 0 2px;letter-spacing:-.02em}
+  .price .amt small{display:block;font-family:var(--font);font-size:.8rem;font-weight:600;color:var(--ind);letter-spacing:.04em;text-transform:uppercase}
+  .price .desc{color:var(--muted);font-size:.95rem;min-height:44px;margin:6px 0 16px}
+  .price ul{list-style:none;margin:0 0 22px;padding:0;display:grid;gap:10px}
+  .price li{display:flex;gap:10px;font-size:.93rem;color:#33333f}
+  .price li svg{width:18px;height:18px;color:var(--teal);flex:none;margin-top:3px}
+  .price .btn{margin-top:auto;justify-content:center}
+  .price-note{color:var(--muted);font-size:.92rem;margin:18px 0 0}
+
+  .maint{display:grid;gap:18px;grid-template-columns:repeat(4,1fr);margin-top:30px}
+  .plan{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px}
+  .plan h4{font-family:var(--display);font-size:1.02rem;margin:0 0 4px}
+  .plan .m{font-family:var(--display);font-weight:700;font-size:1.5rem}
+  .plan .m small{font-size:.8rem;color:var(--muted);font-weight:500;font-family:var(--font)}
+  .plan p{color:var(--muted);font-size:.9rem;margin:8px 0 0}
+
+  /* About */
+  .about-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center}
+  .about ul{list-style:none;padding:0;margin:22px 0 0;display:grid;gap:14px}
+  .about li{display:flex;gap:12px;color:#33333f}
+  .about li svg{width:20px;height:20px;color:var(--ind);flex:none;margin-top:3px}
+  .about-panel{background:var(--ink);color:#fff;border-radius:var(--radius);padding:34px;box-shadow:var(--shadow)}
+  .about-panel h3{font-size:1.3rem;margin-bottom:8px}
+  .about-panel p{color:rgba(255,255,255,.78);font-size:.98rem}
+  .stat-row{display:flex;gap:26px;margin-top:22px;flex-wrap:wrap}
+  .stat b{font-family:var(--display);font-size:1.05rem;color:#fff;display:block}
+  .stat span{color:rgba(255,255,255,.6);font-size:.85rem}
+
+  /* FAQ */
+  .faq{max-width:820px;margin:0 auto}
+  .q{border:1px solid var(--line);border-radius:14px;margin-bottom:14px;background:var(--panel);overflow:hidden}
+  .q summary{cursor:pointer;list-style:none;padding:20px 22px;font-family:var(--display);font-weight:600;font-size:1.05rem;display:flex;justify-content:space-between;align-items:center;gap:16px}
+  .q summary::-webkit-details-marker{display:none}
+  .q summary .chev{width:20px;height:20px;flex:none;transition:transform .2s;color:var(--ind)}
+  .q[open] summary .chev{transform:rotate(180deg)}
+  .q .a{padding:0 22px 20px;color:var(--muted);font-size:.98rem}
+
+  /* Contact */
+  .contact{background:var(--bg);color:#fff}
+  .contact .section-head h2{color:#fff}
+  .contact .section-head p{color:rgba(255,255,255,.75)}
+  .contact-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:44px;align-items:start}
+  .contact-info a{color:#fff;font-weight:600}
+  .contact-info .row{display:flex;gap:12px;align-items:center;margin:14px 0;color:rgba(255,255,255,.85)}
+  .contact-info .row svg{width:20px;height:20px;color:var(--teal);flex:none}
+  form{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);border-radius:var(--radius);padding:28px}
+  .field{margin-bottom:16px}
+  label{display:block;font-size:.85rem;font-weight:600;margin-bottom:7px;color:rgba(255,255,255,.85)}
+  input,textarea{width:100%;padding:.8em .95em;border-radius:11px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#fff;font:inherit;font-size:.96rem}
+  input:focus,textarea:focus{outline:2px solid var(--ind);border-color:transparent}
+  input::placeholder,textarea::placeholder{color:rgba(255,255,255,.4)}
+  form .btn{width:100%;justify-content:center;margin-top:6px}
+  .form-note{font-size:.82rem;color:rgba(255,255,255,.55);margin:12px 0 0;text-align:center}
+
+  /* Footer */
+  footer.site{background:#07070d;color:rgba(255,255,255,.7);padding:56px 0 30px}
+  .foot-top{display:flex;justify-content:space-between;flex-wrap:wrap;gap:30px;padding-bottom:30px;border-bottom:1px solid rgba(255,255,255,.09)}
+  .foot-links{display:flex;flex-wrap:wrap;gap:26px}
+  .foot-links a{color:rgba(255,255,255,.7);font-size:.92rem}
+  .foot-links a:hover{color:#fff}
+  .foot-bottom{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;padding-top:22px;font-size:.85rem;color:rgba(255,255,255,.5)}
+
+  :focus-visible{outline:2px solid var(--ind);outline-offset:2px;border-radius:6px}
+
+  @media (max-width:960px){
+    .cols-4{grid-template-columns:repeat(2,1fr)}
+    .steps{grid-template-columns:repeat(2,1fr)}
+    .price-grid{grid-template-columns:1fr}
+    .maint{grid-template-columns:repeat(2,1fr)}
+    .about-grid,.contact-grid{grid-template-columns:1fr;gap:32px}
+  }
+  @media (max-width:640px){
+    .nav-links{display:none}
+    .menu-btn{display:block}
+    .nav-links.open{display:flex;position:absolute;top:70px;left:0;right:0;flex-direction:column;background:#0b0b12;padding:20px;gap:18px;border-bottom:1px solid rgba(255,255,255,.1)}
+    .cols-4,.cols-3,.cols-2{grid-template-columns:1fr}
+    .maint{grid-template-columns:1fr}
+    .hero-cta .btn{flex:1 1 auto}
+  }
+  @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="wrap nav">
+    <a class="brand" href="#top" aria-label="Websix home">
+      <svg viewBox="0 0 100 100" fill="none" aria-hidden="true"><defs><linearGradient id="g" x1="0" y1="0" x2="100" y2="100"><stop offset="0" stop-color="#6366f1"/><stop offset=".5" stop-color="#8b5cf6"/><stop offset="1" stop-color="#14b8a6"/></linearGradient></defs><path d="M50 6 89 28V72L50 94 11 72V28Z" stroke="url(#g)" stroke-width="7" stroke-linejoin="round"/><path d="M50 30 68 40V60L50 70 32 60V40Z" fill="url(#g)"/></svg>
+      Websix
+    </a>
+    <nav class="nav-links" id="navLinks" aria-label="Primary">
+      <a href="#services">Services</a>
+      <a href="#process">Process</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#about">About</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <div class="nav-cta">
+      <a class="btn btn-primary" href="#contact">Free website audit</a>
+      <button class="menu-btn" id="menuBtn" aria-label="Toggle menu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- HERO -->
+  <section class="hero" aria-labelledby="hero-h">
+    <svg class="hero-hex" viewBox="0 0 100 100" fill="none" aria-hidden="true"><defs><linearGradient id="hg" x1="0" y1="0" x2="100" y2="100"><stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#14b8a6"/></linearGradient></defs><path d="M50 4 92 27V73L50 96 8 73V27Z" stroke="url(#hg)" stroke-width="2"/><path d="M50 22 76 37V67L50 82 24 67V37Z" stroke="url(#hg)" stroke-width="1.5" opacity=".6"/></svg>
+    <div class="wrap">
+      <p class="eyebrow" style="color:#a5b4fc">Boutique web studio</p>
+      <h1 id="hero-h">Premium websites that <span class="grad-text">grow your business</span>.</h1>
+      <p class="lede">Websix designs and builds fast, mobile-first, search-ready websites for restaurants, salons, contractors, clinics and local businesses — the kind of site that turns a Google search into a paying customer.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="#contact">Get your free website audit</a>
+        <a class="btn btn-ghost" href="#pricing">See pricing</a>
+      </div>
+      <div class="hero-badges">
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg> Free, no-obligation audit</span>
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg> You own your domain &amp; code</span>
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg> No long-term lock-in</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- VALUE -->
+  <section id="why" aria-labelledby="why-h">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">Why it matters</p>
+        <h2 id="why-h">Your website is your hardest-working employee.</h2>
+        <p>Most customers judge a business by its website before they ever call. A slow, dated, or missing site quietly sends them to your competitors. We fix that.</p>
+      </div>
+      <div class="grid cols-4">
+        <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/></svg></div><h3>More customers</h3><p>Clear calls-to-action, booking and contact forms that convert visitors into leads and sales.</p></div>
+        <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg></div><h3>Built for mobile</h3><p>Over half of local searches happen on phones. Every site we build is fast and flawless on mobile.</p></div>
+        <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></div><h3>Found on Google</h3><p>SEO fundamentals, fast load times and clean structure so the right customers actually find you.</p></div>
+        <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 3 14h7l-1 8 10-12h-7z"/></svg></div><h3>Speed &amp; trust</h3><p>Secure (SSL), lightning-fast and professionally designed — so visitors trust you at a glance.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section id="services" class="alt" aria-labelledby="svc-h">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">What we do</p>
+        <h2 id="svc-h">Everything your online presence needs.</h2>
+        <p>From a first website to a full rebuild, we handle design, development, launch and ongoing care — all in one place.</p>
+      </div>
+      <div class="grid cols-3">
+        <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M3 9h18"/></svg></div><h3>Website design &amp; build</h3><p>Custom, responsive sites that look premium and are built to convert — from one page to many.</p></div>
+        <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v5h-5"/></svg></div><h3>Redesigns &amp; rescues</h3><p>Outdated, broken or slow? We modernize existing sites and get offline ones back up fast.</p></div>
+        <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/></svg></div><h3>E-commerce &amp; ordering</h3><p>Sell products or take online orders with secure checkout and simple, reliable management.</p></div>
+        <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div><h3>Booking &amp; forms</h3><p>Online booking, appointment requests and contact forms wired straight to your inbox.</p></div>
+        <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><rect x="7" y="10" width="3" height="8"/><rect x="12" y="6" width="3" height="12"/><rect x="17" y="13" width="3" height="5"/></svg></div><h3>SEO &amp; analytics</h3><p>On-page SEO, Google Analytics and Search Console set up so you can see what's working.</p></div>
+        <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/></svg></div><h3>Care &amp; hosting</h3><p>Domain &amp; hosting setup in your name, plus maintenance plans for updates, backups and security.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROCESS -->
+  <section id="process" aria-labelledby="proc-h">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">How it works</p>
+        <h2 id="proc-h">A clear, five-step process.</h2>
+        <p>No jargon, no surprises. You'll always know what's happening and what's next.</p>
+      </div>
+      <div class="steps">
+        <div class="step"><h3>Discovery</h3><p>We learn your business, goals and customers — starting with a free website audit.</p></div>
+        <div class="step"><h3>Design</h3><p>We craft a clean, on-brand layout and share a preview for your feedback.</p></div>
+        <div class="step"><h3>Build</h3><p>We develop a fast, responsive, SEO-ready site and refine it with you.</p></div>
+        <div class="step"><h3>Launch</h3><p>We connect your domain, set up hosting, test everything and go live.</p></div>
+        <div class="step"><h3>Grow</h3><p>We keep it secure and updated, and help you add pages, SEO and more.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section id="pricing" class="alt" aria-labelledby="price-h">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">Pricing</p>
+        <h2 id="price-h">Transparent pricing, scoped to you.</h2>
+        <p>Every project is custom-quoted after your free audit. These are starting points — you'll get a fixed quote before any work begins.</p>
+      </div>
+
+      <div class="price-grid">
+        <div class="price">
+          <h3>Starter</h3>
+          <div class="amt"><small>Starting at</small>$1,000</div>
+          <p class="desc">A polished 1–5 page site to get you online and converting.</p>
+          <ul>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg> Responsive, mobile-first design</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg> Contact form &amp; Google Map</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg> Basic SEO &amp; SSL security</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg> Launch &amp; handover support</li>
+          </ul>
+          <a class="btn btn-dark" href="#contact">Start here</a>
+        </div>
+
+        <div class="price feature">
+          <span class="tag">Most popular</span>
+          <h3>Professional</h3>
+          <div class="amt"><small>Starting at</small>$2,500</div>
+          <p class="desc">A content-rich site built to rank on Google and convert.</p>
+          <ul>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg> Custom multi-page design</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg> On-page SEO &amp; copy polish</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg> Analytics + Search Console</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg> Speed &amp; accessibility tuning</li>
+          </ul>
+          <a class="btn btn-primary" href="#contact">Get a quote</a>
+        </div>
+
+        <div class="price">
+          <h3>E-Commerce</h3>
+          <div class="amt"><small>Starting at</small>$4,000</div>
+          <p class="desc">Sell products or take online orders with secure checkout.</p>
+          <ul>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg> Product catalog &amp; checkout</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg> Payments &amp; order flows</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg> Inventory basics</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg> Training on managing it</li>
+          </ul>
+          <a class="btn btn-dark" href="#contact">Start selling</a>
+        </div>
+      </div>
+
+      <div class="price-grid" style="margin-top:22px;grid-template-columns:repeat(2,1fr)">
+        <div class="price">
+          <h3>Custom Web App</h3>
+          <div class="amt"><small>Starting at</small>$7,500</div>
+          <p class="desc">Booking systems, client portals and custom functionality.</p>
+          <ul>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg> Custom features &amp; integrations</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg> Dashboards &amp; user accounts</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg> Third-party API connections</li>
+          </ul>
+          <a class="btn btn-dark" href="#contact">Discuss your idea</a>
+        </div>
+        <div class="price">
+          <h3>Enterprise</h3>
+          <div class="amt"><small>Starting at</small>$15,000</div>
+          <p class="desc">Large-scale, multi-location or complex builds.</p>
+          <ul>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg> Bespoke architecture</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg> Multi-location &amp; advanced integrations</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg> Priority delivery &amp; support</li>
+          </ul>
+          <a class="btn btn-dark" href="#contact">Talk to us</a>
+        </div>
+      </div>
+
+      <div class="section-head" style="margin:64px 0 28px">
+        <p class="eyebrow">Care plans</p>
+        <h2 style="font-size:clamp(1.5rem,2.6vw,2rem)">Keep it fast, secure &amp; up to date.</h2>
+        <p>Optional monthly maintenance so your site keeps performing after launch.</p>
+      </div>
+      <div class="maint">
+        <div class="plan"><h4>Basic</h4><div class="m">$100<small>/mo</small></div><p>Updates, backups, security monitoring, uptime checks and small monthly edits.</p></div>
+        <div class="plan"><h4>Professional</h4><div class="m">$250<small>/mo</small></div><p>Everything in Basic, plus performance &amp; SEO monitoring, content updates and a monthly report.</p></div>
+        <div class="plan"><h4>Premium</h4><div class="m">$500<small>/mo</small></div><p>Everything in Professional, plus priority support, larger content changes and conversion tweaks.</p></div>
+        <div class="plan"><h4>Enterprise</h4><div class="m">$1,000+<small>/mo</small></div><p>SLAs, multiple sites and dedicated support for larger organizations.</p></div>
+      </div>
+      <p class="price-note">All prices are starting points and framed as “starting at.” Final scope and cost are confirmed in a written quote before work begins.</p>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about" class="about" aria-labelledby="about-h">
+    <div class="wrap about-grid">
+      <div>
+        <p class="eyebrow">About Websix</p>
+        <h2 id="about-h" style="font-size:clamp(1.9rem,3.4vw,2.7rem)">A studio that treats your site like an asset you own.</h2>
+        <p style="color:var(--muted);font-size:1.06rem;margin-top:16px">Websix is a boutique web design &amp; development studio focused on local and small businesses. We build modern, fast, revenue-focused websites — and we set them up in your own accounts, so you always own your domain, hosting and code.</p>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> Senior, founder-led craft — not a template farm</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> Honest advice and transparent, custom-scoped pricing</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> You keep ownership of everything we build for you</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> A long-term partner, not a one-off transaction</li>
+        </ul>
+      </div>
+      <div class="about-panel">
+        <h3>Our promise</h3>
+        <p>A website that loads fast, works on every phone, is easy to find on Google, and is genuinely yours. If we can't make a meaningful difference for your business, we'll tell you.</p>
+        <div class="stat-row">
+          <div class="stat"><b>Free</b><span>website audit</span></div>
+          <div class="stat"><b>100% yours</b><span>domain &amp; code</span></div>
+          <div class="stat"><b>Ongoing</b><span>care &amp; support</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq" class="alt" aria-labelledby="faq-h">
+    <div class="wrap">
+      <div class="section-head" style="margin-left:auto;margin-right:auto;text-align:center">
+        <p class="eyebrow">FAQ</p>
+        <h2 id="faq-h">Questions, answered.</h2>
+      </div>
+      <div class="faq">
+        <details class="q"><summary>How long does a website take?<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></summary><div class="a">Most Starter and Professional sites launch in about 2–4 weeks once we have your content. E-commerce and custom builds take longer — we'll give you a clear timeline in your quote.</div></details>
+        <details class="q"><summary>Do I own my website and domain?<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></summary><div class="a">Yes — always. We set up your domain and hosting in your own accounts and hand over everything, including the code. Your website is your asset, not ours.</div></details>
+        <details class="q"><summary>I don't have a website yet. Can you help?<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></summary><div class="a">Absolutely — that's our specialty. We'll handle everything from domain and design to launch, and explain each step in plain language.</div></details>
+        <details class="q"><summary>Will my site work well on phones?<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></summary><div class="a">Every site we build is mobile-first, fast and accessible, so it looks and works great on phones, tablets and desktops.</div></details>
+        <details class="q"><summary>Will it help me show up on Google?<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></summary><div class="a">We build in SEO fundamentals — clean structure, fast load times, proper tags — and set up analytics so you can track results. Ongoing SEO is available as an add-on for more competitive markets.</div></details>
+        <details class="q"><summary>How does payment work?<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></summary><div class="a">After your free audit we send a fixed, written quote. Typically a deposit starts the project and the balance is due before launch. No hidden fees.</div></details>
+        <details class="q"><summary>What happens after launch?<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></summary><div class="a">You can take a care plan (from $100/mo) for updates, backups, security and support — or take full ownership with training and documentation. It's your call.</div></details>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" class="contact" aria-labelledby="contact-h">
+    <div class="wrap contact-grid">
+      <div class="contact-info">
+        <p class="eyebrow" style="color:#a5b4fc">Get started</p>
+        <h2 id="contact-h" class="section-head" style="margin:0 0 14px;font-size:clamp(1.9rem,3.4vw,2.7rem);color:#fff">Claim your free website audit.</h2>
+        <p style="color:rgba(255,255,255,.78);max-width:44ch">Tell us about your business and we'll send a free, no-obligation review of your current site (or a plan to build one) — plus a clear quote.</p>
+        <div class="row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg> <a href="mailto:websixagency@gmail.com">websixagency@gmail.com</a></div>
+        <div class="row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20"/></svg> <a href="https://websix.site">websix.site</a></div>
+      </div>
+
+      <!-- To enable direct-to-inbox submissions, create a free form endpoint (e.g. Formspree)
+           and replace FORMSPREE_ENDPOINT below with your form URL, e.g. https://formspree.io/f/xxxxxx
+           Until then, the form opens the visitor's email app addressed to websixagency@gmail.com. -->
+      <form id="auditForm" action="FORMSPREE_ENDPOINT" method="POST">
+        <div class="field"><label for="name">Your name</label><input id="name" name="name" type="text" placeholder="Jane Doe" required /></div>
+        <div class="field"><label for="business">Business name</label><input id="business" name="business" type="text" placeholder="Jane's Bakery" required /></div>
+        <div class="field"><label for="email">Email</label><input id="email" name="email" type="email" placeholder="you@business.com" required /></div>
+        <div class="field"><label for="website">Current website (optional)</label><input id="website" name="website" type="text" placeholder="yourwebsite.com — or 'none yet'" /></div>
+        <div class="field"><label for="message">What would you like to improve?</label><textarea id="message" name="message" rows="3" placeholder="A quick note about your goals…"></textarea></div>
+        <button class="btn btn-primary" type="submit">Request my free audit</button>
+        <p class="form-note">We only use your details to reply about your website. No spam, ever.</p>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <div class="foot-top">
+      <a class="brand" href="#top" aria-label="Websix home">
+        <svg viewBox="0 0 100 100" fill="none" aria-hidden="true"><path d="M50 6 89 28V72L50 94 11 72V28Z" stroke="url(#g)" stroke-width="7" stroke-linejoin="round"/><path d="M50 30 68 40V60L50 70 32 60V40Z" fill="url(#g)"/></svg>
+        Websix
+      </a>
+      <nav class="foot-links" aria-label="Footer">
+        <a href="#services">Services</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#process">Process</a>
+        <a href="#about">About</a>
+        <a href="#faq">FAQ</a>
+        <a href="mailto:websixagency@gmail.com">Contact</a>
+      </nav>
+    </div>
+    <div class="foot-bottom">
+      <span>© <span id="yr">2026</span> Websix. Premium websites for growing businesses.</span>
+      <span>websix.site · websixagency@gmail.com</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Mobile nav
+  var menuBtn=document.getElementById('menuBtn'),navLinks=document.getElementById('navLinks');
+  if(menuBtn){menuBtn.addEventListener('click',function(){var open=navLinks.classList.toggle('open');menuBtn.setAttribute('aria-expanded',open?'true':'false');});
+    navLinks.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){navLinks.classList.remove('open');menuBtn.setAttribute('aria-expanded','false');});});}
+  // Footer year
+  document.getElementById('yr').textContent=new Date().getFullYear();
+  // Contact form: use configured endpoint, else gracefully fall back to email
+  var form=document.getElementById('auditForm');
+  if(form){form.addEventListener('submit',function(e){
+    var action=form.getAttribute('action');
+    if(!action||action.indexOf('FORMSPREE')!==-1){
+      e.preventDefault();
+      var n=encodeURIComponent(form.name.value),b=encodeURIComponent(form.business.value),
+          em=encodeURIComponent(form.email.value),w=encodeURIComponent(form.website.value),m=encodeURIComponent(form.message.value);
+      var body="Name: "+n+"%0D%0ABusiness: "+b+"%0D%0AEmail: "+em+"%0D%0AWebsite: "+w+"%0D%0A%0D%0A"+m;
+      window.location.href="mailto:websixagency@gmail.com?subject="+encodeURIComponent("Free website audit request — "+form.business.value)+"&body="+body;
+    }
+  });}
+</script>
+</body>
+</html>
