@@ -142,17 +142,23 @@
 (function(){
   var LS_TOKEN='websix_admin_token', LS_API='websix_admin_api';
   var state={ token:null, api:'', user:null, view:'overview' };
+  // Storage helpers that never throw (sandboxed previews block localStorage; live site is fine).
+  var _mem={};
+  var _LS=null; try{ _LS=window.localStorage; _LS.getItem('__probe'); }catch(e){ _LS=null; }
+  function lsGet(k){ try{ return _LS?_LS.getItem(k):(_mem[k]||null); }catch(e){ return _mem[k]||null; } }
+  function lsSet(k,v){ try{ if(_LS)_LS.setItem(k,v); else _mem[k]=v; }catch(e){ _mem[k]=v; } }
+  function lsRemove(k){ try{ if(_LS)_LS.removeItem(k); else delete _mem[k]; }catch(e){ delete _mem[k]; } }
 
   // --- boot: OAuth token in hash, or stored token ---
   function readHashToken(){
     if(location.hash.indexOf('token=')>-1){
       var t=new URLSearchParams(location.hash.slice(1)).get('token');
-      if(t){ localStorage.setItem(LS_TOKEN,t); history.replaceState(null,'',location.pathname); return t; }
+      if(t){ lsSet(LS_TOKEN,t); history.replaceState(null,'',location.pathname); return t; }
     }
     return null;
   }
-  state.api = localStorage.getItem(LS_API) || 'https://websix-backend.onsoti777.workers.dev';
-  state.token = readHashToken() || localStorage.getItem(LS_TOKEN);
+  state.api = lsGet(LS_API) || 'https://websix-backend.onsoti777.workers.dev';
+  state.token = readHashToken() || lsGet(LS_TOKEN);
   document.getElementById('apiBase').value = state.api;
 
   // --- API helper ---
@@ -169,15 +175,15 @@
   }
 
   // --- auth ---
-  document.getElementById('apiBase').addEventListener('change', function(e){ state.api=e.target.value.trim(); localStorage.setItem(LS_API,state.api); });
+  document.getElementById('apiBase').addEventListener('change', function(e){ state.api=e.target.value.trim(); lsSet(LS_API,state.api); });
   document.getElementById('loginForm').addEventListener('submit', async function(e){
     e.preventDefault();
     var err=document.getElementById('loginErr'); err.textContent='';
-    state.api=(document.getElementById('apiBase').value||'').trim(); localStorage.setItem(LS_API,state.api);
+    state.api=(document.getElementById('apiBase').value||'').trim(); lsSet(LS_API,state.api);
     if(!state.api){ err.textContent='Enter your backend API URL first.'; return; }
     try{
       var r=await api('/api/auth/login',{method:'POST',body:{email:document.getElementById('email').value,password:document.getElementById('password').value}});
-      state.token=r.token; state.user=r.user; localStorage.setItem(LS_TOKEN,r.token);
+      state.token=r.token; state.user=r.user; lsSet(LS_TOKEN,r.token);
       showApp();
     }catch(ex){ err.textContent=ex.message||'Sign in failed'; }
   });
@@ -186,11 +192,11 @@
       e.preventDefault();
       var apiUrl=(document.getElementById('apiBase').value||'').trim();
       if(!apiUrl){ document.getElementById('loginErr').textContent='Enter your backend API URL first.'; return; }
-      localStorage.setItem(LS_API,apiUrl);
+      lsSet(LS_API,apiUrl);
       window.location.href=apiUrl.replace(/\/$/,'')+'/api/auth/oauth/'+a.getAttribute('data-provider')+'/start';
     });
   });
-  function logout(){ state.token=null; state.user=null; localStorage.removeItem(LS_TOKEN); document.getElementById('app').classList.add('hidden'); document.getElementById('login').classList.remove('hidden'); }
+  function logout(){ state.token=null; state.user=null; lsRemove(LS_TOKEN); document.getElementById('app').classList.add('hidden'); document.getElementById('login').classList.remove('hidden'); }
   document.getElementById('logoutBtn').addEventListener('click', logout);
   document.getElementById('refreshBtn').addEventListener('click', function(){ renderView(state.view); });
 
