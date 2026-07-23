@@ -274,7 +274,7 @@ async function aiAssist(env, ref, body) {
   else if (task === 'timeline_summary') prompt = "Summarize this project's progress for an internal status update; state the current status and recommend the next action. Timeline (JSON): " + JSON.stringify(acts) + " Context (JSON): " + JSON.stringify(ctx) + extra;
   else prompt = "Assist with this project. " + extra + " Context (JSON): " + JSON.stringify(ctx);
   try {
-    const r = await env.AI.run('@cf/meta/llama-3.1-8b-instruct', { messages: [{ role: 'system', content: sys }, { role: 'user', content: prompt }], max_tokens: 900 });
+    const r = await env.AI.run('@cf/meta/llama-3.3-70b-instruct-fp8-fast', { messages: [{ role: 'system', content: sys }, { role: 'user', content: prompt }], max_tokens: 900 });
     const text = (r && (r.response || r.result || r.output_text)) || '';
     return json({ ok: true, task, text: String(text).trim() });
   } catch (e) { return json({ error: 'ai_error', detail: String((e && e.message) || e) }, 502); }
