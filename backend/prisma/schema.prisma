@@ -1,0 +1,124 @@
+// Websix backend data model.
+// Production provider is PostgreSQL. For a quick local spin-up you can switch
+// provider to "sqlite" and set DATABASE_URL="file:./dev.db".
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String?
+  role         String   @default("admin") // super_admin | admin | sales | pm | designer | developer | content | seo | support
+  createdAt    DateTime @default(now())
+}
+
+model Lead {
+  id            String   @id @default(cuid())
+  businessName  String
+  category      String?
+  city          String?
+  country       String?  @default("USA")
+  phone         String?
+  email         String?
+  websiteStatus String?
+  score         Int?
+  priority      String?
+  socialPages   String?
+  notes         String?
+  source        String?  @default("research")
+  createdAt     DateTime @default(now())
+}
+
+model Client {
+  id           String    @id @default(cuid())
+  businessName String
+  contactName  String?
+  email        String    @unique
+  phone        String?
+  createdAt    DateTime  @default(now())
+  projects     Project[]
+}
+
+model Project {
+  id          String     @id @default(cuid())
+  publicId    String     @unique // e.g. WX-2026-AB12C
+  client      Client?    @relation(fields: [clientId], references: [id])
+  clientId    String?
+  type        String     // "new" | "existing"
+  status      String     @default("quote_requested")
+  summary     String?
+  tier        String?
+  estimateLow  Int?
+  estimateHigh Int?
+  data        Json?      // full intake payload
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  quotes      Quote[]
+  invoices    Invoice[]
+  payments    Payment[]
+  activities  Activity[]
+  messages    Message[]
+}
+
+model Quote {
+  id        String   @id @default(cuid())
+  project   Project  @relation(fields: [projectId], references: [id])
+  projectId String
+  amount    Int      @default(0)
+  currency  String   @default("usd")
+  scope     Json?
+  status    String   @default("submitted") // submitted | sent | approved | rejected
+  createdAt DateTime @default(now())
+}
+
+model Invoice {
+  id        String   @id @default(cuid())
+  project   Project  @relation(fields: [projectId], references: [id])
+  projectId String
+  amount    Int
+  currency  String   @default("usd")
+  status    String   @default("unpaid") // unpaid | paid | refunded
+  stripeId  String?
+  createdAt DateTime @default(now())
+  payments  Payment[]
+}
+
+model Payment {
+  id        String   @id @default(cuid())
+  project   Project? @relation(fields: [projectId], references: [id])
+  projectId String?
+  invoice   Invoice? @relation(fields: [invoiceId], references: [id])
+  invoiceId String?
+  amount    Int
+  currency  String   @default("usd")
+  status    String   @default("succeeded")
+  stripeId  String?
+  createdAt DateTime @default(now())
+}
+
+model Activity {
+  id        String   @id @default(cuid())
+  project   Project? @relation(fields: [projectId], references: [id])
+  projectId String?
+  type      String
+  message   String
+  meta      Json?
+  createdAt DateTime @default(now())
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  project   Project  @relation(fields: [projectId], references: [id])
+  projectId String
+  sender    String   // "client" | "agency"
+  body      String
+  createdAt DateTime @default(now())
+}
