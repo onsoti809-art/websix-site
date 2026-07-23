@@ -7,6 +7,7 @@ import authRoutes from './routes/auth';
 import pub from './routes/public';
 import admin from './routes/admin';
 import pay, { stripeWebhook } from './routes/payments';
+import oauth from './routes/oauth';
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -16,6 +17,7 @@ app.use('*', cors());
 app.get('/health', (c) => c.json({ ok: true, service: 'websix-backend' }));
 
 app.route('/api/auth', authRoutes);
+app.route('/api/auth/oauth', oauth);
 app.route('/api', pub);              // POST /api/quotes
 app.route('/api/admin', admin);      // admin.* (auth-guarded)
 app.route('/api/payments', pay);     // POST /api/payments/checkout

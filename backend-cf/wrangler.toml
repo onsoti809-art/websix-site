@@ -11,6 +11,8 @@ OWNER_EMAIL = "websixagency@gmail.com"
 # Resend needs a verified sender. For instant testing you may use "onboarding@resend.dev";
 # after verifying websix.site in Resend, switch to e.g. "Websix <hello@websix.site>".
 FROM_EMAIL = "Websix <onboarding@resend.dev>"
+# Public URL of THIS worker — used to build OAuth redirect URIs. Set to your route after deploy.
+API_BASE_URL = "https://api.websix.site"
 
 # D1 database (id filled in after `wrangler d1 create websix-db` or via the Cloudflare API).
 [[d1_databases]]
@@ -38,3 +40,9 @@ crons = ["0 6 * * *"]
 #   wrangler secret put TURNSTILE_SECRET      # optional (bot protection on the quote form)
 #   wrangler secret put STRIPE_SECRET_KEY     # optional (payments)
 #   wrangler secret put STRIPE_WEBHOOK_SECRET # optional (payments)
+#   wrangler secret put GOOGLE_CLIENT_ID       # optional (OAuth)
+#   wrangler secret put GOOGLE_CLIENT_SECRET
+#   wrangler secret put GITHUB_CLIENT_ID
+#   wrangler secret put GITHUB_CLIENT_SECRET
+#   wrangler secret put MICROSOFT_CLIENT_ID
+#   wrangler secret put MICROSOFT_CLIENT_SECRET

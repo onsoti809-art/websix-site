@@ -68,6 +68,28 @@ Point a route/custom domain (e.g. `api.websix.site`) at the Worker in the Cloudf
 
 Resend requires a verified sender. `onboarding@resend.dev` works instantly for testing; after verifying **websix.site** in Resend, set `FROM_EMAIL="Websix <hello@websix.site>"` in `wrangler.toml`.
 
+## OAuth sign-in (Google / GitHub / Microsoft)
+
+A provider turns on automatically once its secrets are set. The callback URL for every provider is:
+
+```
+{API_BASE_URL}/api/auth/oauth/<provider>/callback
+# e.g. https://api.websix.site/api/auth/oauth/google/callback
+```
+
+1. Set `API_BASE_URL` in `wrangler.toml` to your Worker's public URL.
+2. Create the OAuth app and register that callback URL:
+   - **Google** — Cloud Console → APIs & Services → Credentials → OAuth client (Web).
+   - **GitHub** — Settings → Developer settings → OAuth Apps (Authorization callback URL).
+   - **Microsoft** — Entra ID → App registrations → Redirect URI (Web).
+3. Store the credentials as secrets: `wrangler secret put GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` (and GITHUB_* / MICROSOFT_* as needed).
+
+**Security model:** OAuth signs in an **existing** user by email only; the configured `OWNER_EMAIL` is auto-provisioned as `super_admin` on first login. Add other staff from the admin panel (or the register bootstrap). The admin UI's "Continue with…" buttons call `/api/auth/oauth/<provider>/start` and receive the JWT back at `/admin/#token=…`.
+
+## Admin dashboard
+
+A static SPA lives at `/admin/` (served with the site). It signs in against this API (password or OAuth), then shows overview metrics, leads, clients, projects, quotes, invoices, activity, and global search, with manual create actions. Set its **Backend API URL** field to your deployed Worker URL on first load.
+
 ## Roadmap (phased, per the platform plan)
 
 Auth providers (Google/GitHub/Microsoft, magic links, 2FA) · Durable Objects (live chat, presence, real-time dashboards) · Queues (email, reports, backups) · Workflows · R2 media & backups · blog/SEO · hosting/domain/SSL/uptime monitoring · AI service · reporting · tests.
