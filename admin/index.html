@@ -378,6 +378,17 @@
       +'<div class="field"><label>Message</label><textarea id="ws_em_body" rows="5"></textarea></div>'
       +'<button class="btn sm" id="wsEmailBtn">Send email</button><div class="err" id="wsEmailErr"></div></div>';
     h+='</div>';
+    h+='<div class="panel"><h3>AI assistant <span class="muted" style="font-weight:400;font-size:.8rem">— drafts you review before sending</span></h3>'
+      +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">'
+      +'<button class="btn ghost sm" data-ai="email">Draft email</button>'
+      +'<button class="btn ghost sm" data-ai="proposal">Draft proposal</button>'
+      +'<button class="btn ghost sm" data-ai="plan">Draft project plan</button>'
+      +'<button class="btn ghost sm" data-ai="timeline_summary">Summarize timeline</button>'
+      +'</div>'
+      +'<div class="field"><input id="ws_ai_instr" placeholder="Optional: extra instructions (e.g. mention the 50% deposit)"></div>'
+      +'<div class="err" id="wsAiErr"></div>'
+      +'<textarea id="ws_ai_out" rows="8" placeholder="AI output appears here — review and edit before using." style="width:100%"></textarea>'
+      +'<div style="display:flex;gap:8px;margin-top:8px"><button class="btn ghost sm" id="wsAiToEmail">Use in email</button><button class="btn ghost sm" id="wsAiToNote">Save as note</button></div></div>';
     h+='<div class="panel"><h3>Timeline</h3>'+table([{key:'type',label:'Event'},{key:'message',label:'Detail'},{key:'created_at',label:'When',get:function(r){return (r.created_at||'').replace('T',' ').slice(0,16);}}], w.activities)+'</div>';
     C.innerHTML=h;
     wireWorkspace(ref);
@@ -396,6 +407,9 @@
     document.getElementById('wsMsgBtn').onclick=async function(){ var b=wsVal('ws_msg').trim(); if(!b)return; try{ await post('/messages',{body:b}); refresh(); }catch(ex){ alert(ex.message); } };
     Array.prototype.forEach.call(document.querySelectorAll('[data-tpl]'),function(b){ b.onclick=function(){ var t=EMAIL_TEMPLATES[b.getAttribute('data-tpl')]; document.getElementById('ws_em_subj').value=t.s; document.getElementById('ws_em_body').value=t.b.split('{name}').join(CURRENT_WS_CLIENT_NAME); }; });
     document.getElementById('wsEmailBtn').onclick=async function(){ var to=wsVal('ws_em_to').trim(); if(!to){ document.getElementById('wsEmailErr').textContent='Recipient required'; return; } try{ await post('/email',{to:to,subject:wsVal('ws_em_subj'),body:wsVal('ws_em_body')}); document.getElementById('wsEmailErr').textContent=''; alert('Email sent'); refresh(); }catch(ex){ document.getElementById('wsEmailErr').textContent=ex.message; } };
+    Array.prototype.forEach.call(document.querySelectorAll('[data-ai]'),function(b){ b.onclick=async function(){ var out=document.getElementById('ws_ai_out'); document.getElementById('wsAiErr').textContent=''; out.value='Thinking…'; try{ var r=await post('/ai',{task:b.getAttribute('data-ai'),instructions:wsVal('ws_ai_instr')}); out.value=(r&&r.text)||'(no output)'; }catch(ex){ out.value=''; document.getElementById('wsAiErr').textContent=ex.message; } }; });
+    document.getElementById('wsAiToEmail').onclick=function(){ var t=wsVal('ws_ai_out'); if(!t)return; var m=t.match(/^\s*Subject:\s*(.+?)\n([\s\S]*)$/i); if(m){ document.getElementById('ws_em_subj').value=m[1].trim(); document.getElementById('ws_em_body').value=m[2].trim(); } else { document.getElementById('ws_em_body').value=t; } var el=document.getElementById('ws_em_subj'); if(el)el.scrollIntoView({behavior:'smooth'}); };
+    document.getElementById('wsAiToNote').onclick=async function(){ var t=wsVal('ws_ai_out'); if(!t)return; try{ await post('/notes',{body:t}); alert('Saved as note'); refresh(); }catch(ex){ alert(ex.message); } };
   }
 
   // --- start ---

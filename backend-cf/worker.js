@@ -255,6 +255,31 @@ async function projectWorkspace(env, ref) {
   return json({ project, client, quotes, invoices, payments, activities, messages, tasks, notes, paid });
 }
 
+async function aiAssist(env, ref, body) {
+  const p = await getProject(env, ref);
+  if (!p) return json({ error: 'not_found' }, 404);
+  if (!env.AI) return json({ error: 'ai_not_configured' }, 503);
+  const client = p.client_id ? await one(env, 'SELECT * FROM clients WHERE id=?', p.client_id) : null;
+  let data = {}; try { data = JSON.parse(p.data || '{}'); } catch (e) {}
+  const f = data.fields || {};
+  const acts = await all(env, 'SELECT type,message,created_at FROM activities WHERE project_id=? ORDER BY created_at ASC LIMIT 60', p.id);
+  const ctx = { ref: p.public_id, type: p.type, status: p.status, tier: p.tier, estimate: p.estimate_low, business: (client && client.business_name) || f.biz_name, contact: (client && client.contact_name) || f.contact_name, industry: f.industry, goals: f.goals || f.cur_goals, audience: f.audience, products: f.products, features: data.features || [], pages: f.pages, timeline: f.timeline, budget: f.budget, problems: f.problems, improvements: f.improvements };
+  const task = body.task || 'email';
+  const extra = body.instructions ? ('\nExtra instructions: ' + body.instructions) : '';
+  const sys = "You are the assistant for Websix, a premium web design agency. Write in a warm, professional, concise voice. Never invent facts, prices, testimonials, or results that are not provided. Pricing uses 'starting at' framing; never quote a build below $1,000 or above $8,500, or maintenance below $100/month.";
+  let prompt;
+  if (task === 'email') prompt = "Draft a short, friendly client email for this project. Start with a 'Subject:' line, then the body. Sign off as 'The Websix team'. Project context (JSON): " + JSON.stringify(ctx) + extra;
+  else if (task === 'proposal') prompt = "Write a website proposal with sections: Project Summary, Recommended Solution, Scope of Work, Timeline, Deliverables, Investment (use 'starting at' with the given estimate), Next Steps. Project context (JSON): " + JSON.stringify(ctx) + extra;
+  else if (task === 'plan') prompt = "Write a clear project plan: phases (Discovery, Design, Build, Launch, Grow), key milestones, and a tailored task checklist. Project context (JSON): " + JSON.stringify(ctx) + extra;
+  else if (task === 'timeline_summary') prompt = "Summarize this project's progress for an internal status update; state the current status and recommend the next action. Timeline (JSON): " + JSON.stringify(acts) + " Context (JSON): " + JSON.stringify(ctx) + extra;
+  else prompt = "Assist with this project. " + extra + " Context (JSON): " + JSON.stringify(ctx);
+  try {
+    const r = await env.AI.run('@cf/meta/llama-3.1-8b-instruct', { messages: [{ role: 'system', content: sys }, { role: 'user', content: prompt }], max_tokens: 900 });
+    const text = (r && (r.response || r.result || r.output_text)) || '';
+    return json({ ok: true, task, text: String(text).trim() });
+  } catch (e) { return json({ error: 'ai_error', detail: String((e && e.message) || e) }, 502); }
+}
+
 async function adminRoutes(path, m, req, env) {
   if (path === '/api/admin/overview') {
     const rev = await one(env, "SELECT COALESCE(SUM(amount),0) AS s FROM payments WHERE status='succeeded'");
@@ -276,6 +301,7 @@ async function adminRoutes(path, m, req, env) {
   if (path === '/api/admin/search') { const url = new URL(req.url); const q = '%' + (url.searchParams.get('q') || '').trim() + '%'; return json({ clients: await all(env, 'SELECT id,business_name,email FROM clients WHERE business_name LIKE ? OR email LIKE ? LIMIT 20', q, q), projects: await all(env, 'SELECT id,public_id,summary,status FROM projects WHERE public_id LIKE ? OR summary LIKE ? LIMIT 20', q, q), leads: await all(env, 'SELECT id,business_name,city FROM leads WHERE business_name LIKE ? OR city LIKE ? LIMIT 20', q, q) }); }
   let mm;
   if ((mm = path.match(/^\/api\/admin\/projects\/([^/]+)\/workspace$/))) return await projectWorkspace(env, mm[1]);
+  if ((mm = path.match(/^\/api\/admin\/projects\/([^/]+)\/ai$/))) return await aiAssist(env, mm[1], await req.json().catch(function () { return {}; }));
   if ((mm = path.match(/^\/api\/admin\/projects\/([^/]+)\/status$/))) {
     const p = await getProject(env, mm[1]); if (!p) return json({ error: 'not_found' }, 404);
     const b = await req.json().catch(function () { return {}; }); if (!b.status) return json({ error: 'invalid' }, 400);
