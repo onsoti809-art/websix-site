@@ -125,6 +125,12 @@ async function authUser(req, env) {
   try { return await jwtVerify(t, env.JWT_SECRET); } catch { return null; }
 }
 
+// ---- admin allowlist (only these emails can access the admin dashboard) ----
+function isAdmin(env, email) {
+  const list = String(env.ADMIN_EMAILS || '').toLowerCase().split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+  return list.indexOf(String(email || '').toLowerCase()) >= 0;
+}
+
 // ---- OAuth ----
 const PROVIDERS = {
   google: { authorize: 'https://accounts.google.com/o/oauth2/v2/auth', token: 'https://oauth2.googleapis.com/token', scope: 'openid email profile', userinfo: 'https://openidconnect.googleapis.com/v1/userinfo' },
@@ -177,7 +183,7 @@ async function oauthCallback(p, env, url) {
   email = String(email).toLowerCase();
   let user = await one(env, 'SELECT * FROM users WHERE email=?', email);
   if (!user) {
-    if (email === String(env.OWNER_EMAIL || '').toLowerCase()) {
+    if (isAdmin(env, email)) {
       const uid = uuid();
       await runq(env, 'INSERT INTO users (id,email,password_hash,name,role) VALUES (?,?,?,?,?)', uid, email, 'oauth:' + p, name || 'Owner', 'super_admin');
       user = await one(env, 'SELECT * FROM users WHERE id=?', uid);
@@ -305,7 +311,7 @@ export default {
       let mo;
       if ((mo = path.match(/^\/api\/auth\/oauth\/([^/]+)\/start$/))) return await oauthStart(mo[1], env);
       if ((mo = path.match(/^\/api\/auth\/oauth\/([^/]+)\/callback$/))) return await oauthCallback(mo[1], env, url);
-      if (path.startsWith('/api/admin/')) { const u = await authUser(req, env); if (!u) return json({ error: 'unauthorized' }, 401); return await adminRoutes(path, m, req, env); }
+      if (path.startsWith('/api/admin/')) { const u = await authUser(req, env); if (!u) return json({ error: 'unauthorized' }, 401); if (!isAdmin(env, u.email)) return json({ error: 'forbidden' }, 403); return await adminRoutes(path, m, req, env); }
       if (path === '/api/payments/checkout' && m === 'POST') return await checkout(req, env);
       if (path === '/api/webhooks/stripe' && m === 'POST') return await stripeHook(req, env);
       return json({ error: 'not_found' }, 404);

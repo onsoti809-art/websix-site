@@ -93,8 +93,8 @@
       <button class="btn" type="submit" style="width:100%;justify-content:center">Sign in</button>
       <div class="err" id="loginErr"></div>
     </form>
-    <div class="divider">or continue with</div>
-    <div class="oauth" id="oauthBtns">
+    <div class="divider hidden">or continue with</div>
+    <div class="oauth hidden" id="oauthBtns">
       <a data-provider="google" href="#">Continue with Google</a>
       <a data-provider="github" href="#">Continue with GitHub</a>
       <a data-provider="microsoft" href="#">Continue with Microsoft</a>
@@ -103,15 +103,7 @@
       <label for="apiBase">Backend API URL</label>
       <input id="apiBase" type="text" placeholder="https://websix-backend.onsoti777.workers.dev">
     </div>
-    <div style="text-align:center;margin-top:12px;font-size:.84rem"><a href="#" id="toReg">First time? Create the admin account</a></div>
-    <form id="regForm" class="hidden" style="margin-top:12px">
-      <div class="field"><label for="r_name">Name</label><input id="r_name" type="text" placeholder="Owner"></div>
-      <div class="field"><label for="r_email">Email</label><input id="r_email" type="email" placeholder="you@websix.site" required></div>
-      <div class="field"><label for="r_pass">Password (min 8 chars)</label><input id="r_pass" type="password" required></div>
-      <button class="btn" type="submit" style="width:100%;justify-content:center">Create admin &amp; sign in</button>
-      <div class="err" id="regErr"></div>
-      <p style="font-size:.78rem;color:var(--muted);margin-top:8px">Only works once — the first account becomes the super admin, then signup closes.</p>
-    </form>
+    <!-- Admin is pre-provisioned and locked to the owner; public signup is disabled. -->
   </div>
 </section>
 
@@ -201,20 +193,6 @@
   function logout(){ state.token=null; state.user=null; localStorage.removeItem(LS_TOKEN); document.getElementById('app').classList.add('hidden'); document.getElementById('login').classList.remove('hidden'); }
   document.getElementById('logoutBtn').addEventListener('click', logout);
   document.getElementById('refreshBtn').addEventListener('click', function(){ renderView(state.view); });
-
-  // --- first-time admin registration ---
-  document.getElementById('toReg').addEventListener('click', function(e){ e.preventDefault(); document.getElementById('regForm').classList.toggle('hidden'); });
-  document.getElementById('regForm').addEventListener('submit', async function(e){
-    e.preventDefault(); var err=document.getElementById('regErr'); err.textContent='';
-    state.api=(document.getElementById('apiBase').value||'').trim(); localStorage.setItem(LS_API,state.api);
-    if(!state.api){ err.textContent='Enter your backend API URL first.'; return; }
-    var em=document.getElementById('r_email').value, pw=document.getElementById('r_pass').value;
-    try{
-      await api('/api/auth/register',{method:'POST',body:{name:document.getElementById('r_name').value,email:em,password:pw}});
-      var r=await api('/api/auth/login',{method:'POST',body:{email:em,password:pw}});
-      state.token=r.token; state.user=r.user; localStorage.setItem(LS_TOKEN,r.token); showApp();
-    }catch(ex){ err.textContent=ex.message||'Could not create admin'; }
-  });
 
   // --- nav ---
   document.querySelectorAll('#nav a').forEach(function(a){
