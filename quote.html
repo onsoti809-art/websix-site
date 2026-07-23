@@ -179,7 +179,7 @@ var ADDONS=[
   {k:'speed',label:'Speed & performance tuning',cost:400},
   {k:'content',label:'Content migration',cost:350}
 ];
-function pagesBase(p){return {'1-5':1000,'6-10':2500,'11-20':4000,'20+':6000}[p]||1000;}
+function pagesBase(p){return {'1-5':1000,'6-10':2500,'11-20':4000,'20+':5000}[p]||1000;}
 function computeQuote(){
   var f=S.f, base;
   if(S.type==='new'){ base=pagesBase(f.pages||'1-5'); }
@@ -190,10 +190,11 @@ function computeQuote(){
   var addonTotal=0, addonList=[];
   ADDONS.forEach(function(a){ if(S.addons[a.k]){ addonTotal+=a.cost; addonList.push(a.label);} });
   var subtotal=base+add;
-  var est=Math.max(1000, subtotal+addonTotal);
-  var high=Math.round(est*1.3/100)*100;
+  // Pricing policy: hard ceiling of $8,500 on any build; simple small-business sites land under $4,500.
+  var est=Math.min(8500, Math.max(1000, subtotal+addonTotal));
+  var high=Math.min(8500, Math.round(est*1.3/100)*100);
   // tier + maintenance
-  var tier= est<1500?'Starter': est<3000?'Professional': est<6000?'E-Commerce / Custom':'Custom / Enterprise';
+  var tier= est<=1500?'Starter': est<=3000?'Professional': est<=4500?'E-Commerce':'Custom / Advanced';
   var maint = (S.feat.ecommerce||S.feat.membership)? (S.feat.ecommerce&&S.feat.membership?{n:'Premium',p:500}:{n:'Professional',p:250}) : {n:'Basic',p:100};
   return {base:base,add:add,addonTotal:addonTotal,est:est,high:high,tier:tier,maint:maint,feats:feats,addonList:addonList};
 }
