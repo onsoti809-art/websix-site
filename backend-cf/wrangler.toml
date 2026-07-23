@@ -16,12 +16,12 @@ FROM_EMAIL = "Websix <onboarding@resend.dev>"
 [[d1_databases]]
 binding = "DB"
 database_name = "websix-db"
-database_id = "REPLACE_WITH_D1_DATABASE_ID"
+database_id = "9b5fdbfd-6d42-422d-ac34-64a34073f988"
 
 # KV for sessions / cache (id filled in after `wrangler kv namespace create CACHE`).
 [[kv_namespaces]]
 binding = "CACHE"
-id = "REPLACE_WITH_KV_NAMESPACE_ID"
+id = "8643be6b9e724f00a33b40983089872d"
 
 # R2 for files/backups (create with `wrangler r2 bucket create websix-media`).
 [[r2_buckets]]
