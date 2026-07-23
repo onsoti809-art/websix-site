@@ -432,22 +432,27 @@ function summaryText(){
   if(S.next&&S.next.length)L.push('Next steps requested: '+S.next.join(', '));
   return L.join('\n');
 }
+// Live Websix backend (Cloudflare Worker). Submissions create a real project and email
+// both the client and the agency. Falls back to the visitor's email app if unreachable.
+var FORM_ENDPOINT='https://websix-backend.onsoti777.workers.dev/api/quotes';
+function payloadFor(){ var q=computeQuote(); return {type:S.type,fields:S.f,features:q.feats,addons:q.addonList,estimate:{low:q.est,high:q.high,tier:q.tier},summary:summaryText()}; }
 function doSubmit(){
   var email=(document.getElementById('contact_email')||{}).value||'';
   S.f.contact_email=email; S.f.contact_phone=(document.getElementById('contact_phone')||{}).value||'';
   if(!email || email.indexOf('@')<0){ alert('Please add your email so we can send your quote.'); return; }
-  S.pid=genPID(); S.submitted=true; S.i=steps().indexOf('confirm'); save(); render(); window.scrollTo({top:0,behavior:'smooth'});
-  sendToAgency(); // fire the notification (Formspree if configured, else email fallback)
-}
-/* Configure FORM_ENDPOINT with a Formspree URL (https://formspree.io/f/xxxx) to receive
-   submissions automatically. Until then, submissions open the visitor's email client
-   pre-filled to the agency. A full backend (auto CRM project + confirmation email) is Phase C. */
-var FORM_ENDPOINT='';
-function sendToAgency(){
-  var payload={projectId:S.pid,type:S.type,fields:S.f,features:computeQuote().feats,addons:computeQuote().addonList,summary:summaryText()};
+  var btn=document.querySelector('[data-nav="submit"]'); if(btn){ btn.disabled=true; btn.textContent='Submitting…'; }
+  var done=function(pid){ S.pid=pid; S.submitted=true; S.i=steps().indexOf('confirm'); save(); render(); window.scrollTo({top:0,behavior:'smooth'}); };
   if(FORM_ENDPOINT && FORM_ENDPOINT.indexOf('http')===0){
-    fetch(FORM_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify(payload)}).catch(function(){});
-  }
+    fetch(FORM_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payloadFor())})
+      .then(function(r){ return r.json(); })
+      .then(function(d){ done((d&&d.projectId)||genPID()); })
+      .catch(function(){ done(genPID()); mailtoFallback(); });
+  } else { done(genPID()); mailtoFallback(); }
+}
+function mailtoFallback(){
+  var body=encodeURIComponent(summaryText());
+  var subj=encodeURIComponent('New quote request '+S.pid+(S.f.biz_name?(' — '+S.f.biz_name):''));
+  try{ window.location.href='mailto:websixagency@gmail.com?subject='+subj+'&body='+body; }catch(e){}
 }
 function doFinish(){
   var body=encodeURIComponent(summaryText());
