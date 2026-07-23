@@ -238,6 +238,23 @@ async function authLogin(req, env) {
   const token = await jwtSign({ sub: user.id, email: user.email, role: user.role, exp: Math.floor(Date.now() / 1000) + 43200 }, env.JWT_SECRET);
   return json({ token, user: { id: user.id, email: user.email, role: user.role, name: user.name } });
 }
+async function getProject(env, ref) { return one(env, 'SELECT * FROM projects WHERE public_id=? OR id=?', ref, ref); }
+async function projectWorkspace(env, ref) {
+  const project = await getProject(env, ref);
+  if (!project) return json({ error: 'not_found' }, 404);
+  const pid = project.id;
+  const client = project.client_id ? await one(env, 'SELECT * FROM clients WHERE id=?', project.client_id) : null;
+  const quotes = await all(env, 'SELECT * FROM quotes WHERE project_id=? ORDER BY created_at DESC', pid);
+  const invoices = await all(env, 'SELECT * FROM invoices WHERE project_id=? ORDER BY created_at DESC', pid);
+  const payments = await all(env, 'SELECT * FROM payments WHERE project_id=? ORDER BY created_at DESC', pid);
+  const activities = await all(env, 'SELECT * FROM activities WHERE project_id=? ORDER BY created_at DESC LIMIT 100', pid);
+  const messages = await all(env, 'SELECT * FROM messages WHERE project_id=? ORDER BY created_at ASC LIMIT 200', pid);
+  const tasks = await all(env, 'SELECT * FROM tasks WHERE project_id=? ORDER BY created_at DESC', pid);
+  const notes = await all(env, 'SELECT * FROM notes WHERE project_id=? ORDER BY pinned DESC, created_at DESC', pid);
+  const paid = payments.filter(function (x) { return x.status === 'succeeded'; }).reduce(function (s, x) { return s + (x.amount || 0); }, 0);
+  return json({ project, client, quotes, invoices, payments, activities, messages, tasks, notes, paid });
+}
+
 async function adminRoutes(path, m, req, env) {
   if (path === '/api/admin/overview') {
     const rev = await one(env, "SELECT COALESCE(SUM(amount),0) AS s FROM payments WHERE status='succeeded'");
@@ -257,8 +274,68 @@ async function adminRoutes(path, m, req, env) {
   if (path === '/api/admin/invoices' && m === 'POST') { const b = await req.json().catch(() => ({})); if (!b.projectId || !b.amount) return json({ error: 'invalid' }, 400); const iid = uuid(); await runq(env, 'INSERT INTO invoices (id,project_id,amount,currency,status) VALUES (?,?,?,?,?)', iid, b.projectId, Math.round(b.amount), b.currency || 'usd', 'unpaid'); const project = await one(env, 'SELECT * FROM projects WHERE id=?', b.projectId); const client = project && project.client_id ? await one(env, 'SELECT * FROM clients WHERE id=?', project.client_id) : null; await notify(env, 'invoice_created', { project, client, extra: { amount: Math.round(b.amount) } }); return json({ ok: true, id: iid }); }
   if (path === '/api/admin/activities') return json(await all(env, 'SELECT * FROM activities ORDER BY created_at DESC LIMIT 200'));
   if (path === '/api/admin/search') { const url = new URL(req.url); const q = '%' + (url.searchParams.get('q') || '').trim() + '%'; return json({ clients: await all(env, 'SELECT id,business_name,email FROM clients WHERE business_name LIKE ? OR email LIKE ? LIMIT 20', q, q), projects: await all(env, 'SELECT id,public_id,summary,status FROM projects WHERE public_id LIKE ? OR summary LIKE ? LIMIT 20', q, q), leads: await all(env, 'SELECT id,business_name,city FROM leads WHERE business_name LIKE ? OR city LIKE ? LIMIT 20', q, q) }); }
-  const mp = path.match(/^\/api\/admin\/projects\/(.+)$/);
-  if (mp) { const p = await one(env, 'SELECT * FROM projects WHERE public_id=? OR id=?', mp[1], mp[1]); return p ? json(p) : json({ error: 'not_found' }, 404); }
+  let mm;
+  if ((mm = path.match(/^\/api\/admin\/projects\/([^/]+)\/workspace$/))) return await projectWorkspace(env, mm[1]);
+  if ((mm = path.match(/^\/api\/admin\/projects\/([^/]+)\/status$/))) {
+    const p = await getProject(env, mm[1]); if (!p) return json({ error: 'not_found' }, 404);
+    const b = await req.json().catch(function () { return {}; }); if (!b.status) return json({ error: 'invalid' }, 400);
+    await runq(env, "UPDATE projects SET status=?, updated_at=datetime('now') WHERE id=?", b.status, p.id);
+    const project = await one(env, 'SELECT * FROM projects WHERE id=?', p.id);
+    const client = project.client_id ? await one(env, 'SELECT * FROM clients WHERE id=?', project.client_id) : null;
+    await notify(env, 'project_status_changed', { project, client, extra: { message: 'Project ' + project.public_id + ' status -> ' + b.status } });
+    return json({ ok: true, status: b.status });
+  }
+  if ((mm = path.match(/^\/api\/admin\/projects\/([^/]+)\/website$/))) {
+    const p = await getProject(env, mm[1]); if (!p) return json({ error: 'not_found' }, 404);
+    const b = await req.json().catch(function () { return {}; });
+    await runq(env, 'UPDATE projects SET website_url=?, staging_url=?, domain=?, hosting=?, maintenance_plan=? WHERE id=?', b.website_url || null, b.staging_url || null, b.domain || null, b.hosting || null, b.maintenance_plan || null, p.id);
+    return json({ ok: true });
+  }
+  if ((mm = path.match(/^\/api\/admin\/projects\/([^/]+)\/invoice$/))) {
+    const p = await getProject(env, mm[1]); if (!p) return json({ error: 'not_found' }, 404);
+    const b = await req.json().catch(function () { return {}; }); if (!b.amount) return json({ error: 'invalid' }, 400);
+    const iid = uuid();
+    await runq(env, 'INSERT INTO invoices (id,project_id,amount,currency,status) VALUES (?,?,?,?,?)', iid, p.id, Math.round(b.amount), 'usd', 'unpaid');
+    const client = p.client_id ? await one(env, 'SELECT * FROM clients WHERE id=?', p.client_id) : null;
+    await notify(env, 'invoice_created', { project: p, client, extra: { amount: Math.round(b.amount) } });
+    return json({ ok: true, id: iid });
+  }
+  if ((mm = path.match(/^\/api\/admin\/projects\/([^/]+)\/notes$/))) {
+    const p = await getProject(env, mm[1]); if (!p) return json({ error: 'not_found' }, 404);
+    const b = await req.json().catch(function () { return {}; });
+    const nid = uuid(); await runq(env, 'INSERT INTO notes (id,project_id,body,pinned) VALUES (?,?,?,?)', nid, p.id, b.body || '', b.pinned ? 1 : 0);
+    return json({ ok: true, id: nid });
+  }
+  if ((mm = path.match(/^\/api\/admin\/projects\/([^/]+)\/tasks$/))) {
+    const p = await getProject(env, mm[1]); if (!p) return json({ error: 'not_found' }, 404);
+    const b = await req.json().catch(function () { return {}; }); if (!b.title) return json({ error: 'invalid' }, 400);
+    const tid = uuid(); await runq(env, 'INSERT INTO tasks (id,project_id,title,status,priority,assignee,due_date) VALUES (?,?,?,?,?,?,?)', tid, p.id, b.title, 'todo', b.priority || 'normal', b.assignee || null, b.due_date || null);
+    return json({ ok: true, id: tid });
+  }
+  if ((mm = path.match(/^\/api\/admin\/tasks\/([^/]+)$/))) {
+    const b = await req.json().catch(function () { return {}; });
+    await runq(env, 'UPDATE tasks SET status=? WHERE id=?', b.status || 'done', mm[1]);
+    return json({ ok: true });
+  }
+  if ((mm = path.match(/^\/api\/admin\/projects\/([^/]+)\/messages$/))) {
+    const p = await getProject(env, mm[1]); if (!p) return json({ error: 'not_found' }, 404);
+    const b = await req.json().catch(function () { return {}; });
+    const mid = uuid(); await runq(env, 'INSERT INTO messages (id,project_id,sender,body) VALUES (?,?,?,?)', mid, p.id, 'agency', b.body || '');
+    return json({ ok: true, id: mid });
+  }
+  if ((mm = path.match(/^\/api\/admin\/projects\/([^/]+)\/email$/))) {
+    const p = await getProject(env, mm[1]); if (!p) return json({ error: 'not_found' }, 404);
+    const client = p.client_id ? await one(env, 'SELECT * FROM clients WHERE id=?', p.client_id) : null;
+    const b = await req.json().catch(function () { return {}; });
+    const to = b.to || (client && client.email); if (!to) return json({ error: 'no_recipient' }, 400);
+    const html = b.html || ('<div style="font-family:sans-serif;white-space:pre-wrap">' + esc(b.body || '') + '</div>');
+    await sendEmail(env, to, b.subject || 'A message from Websix', html);
+    await runq(env, 'INSERT INTO messages (id,project_id,sender,body) VALUES (?,?,?,?)', uuid(), p.id, 'agency-email', (b.subject ? '[' + b.subject + '] ' : '') + (b.body || ''));
+    await runq(env, 'INSERT INTO activities (id,project_id,type,message) VALUES (?,?,?,?)', uuid(), p.id, 'email_sent', 'Email sent to ' + to + (b.subject ? ': ' + b.subject : ''));
+    return json({ ok: true });
+  }
+  const mp = path.match(/^\/api\/admin\/projects\/([^/]+)$/);
+  if (mp) { const p = await getProject(env, mp[1]); return p ? json(p) : json({ error: 'not_found' }, 404); }
   return json({ error: 'not_found' }, 404);
 }
 async function checkout(req, env) {

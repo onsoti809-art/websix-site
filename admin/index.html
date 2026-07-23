@@ -233,7 +233,7 @@
       if(v==='overview') return renderOverview();
       if(v==='leads') return renderLeads();
       if(v==='clients') return renderSimple('/api/admin/clients',[{key:'business_name',label:'Business'},{key:'email',label:'Email'},{key:'phone',label:'Phone'},{key:'created_at',label:'Added'}]);
-      if(v==='projects') return renderSimple('/api/admin/projects',[{key:'public_id',label:'Ref'},{key:'type',label:'Type'},{key:'status',label:'Status',raw:true,get:function(r){return '<span class="pill">'+esc(r.status)+'</span>';}},{key:'tier',label:'Tier'},{key:'estimate_low',label:'Estimate',get:function(r){return r.estimate_low?money(r.estimate_low):'';}},{key:'created_at',label:'Created'}]);
+      if(v==='projects') return renderProjects();
       if(v==='quotes') return renderSimple('/api/admin/quotes',[{key:'project_id',label:'Project'},{key:'amount',label:'Amount',get:function(r){return money(r.amount);}},{key:'status',label:'Status'},{key:'created_at',label:'Created'}]);
       if(v==='invoices') return renderInvoices();
       if(v==='activity') return renderSimple('/api/admin/activities',[{key:'type',label:'Type'},{key:'message',label:'Message'},{key:'created_at',label:'When'}]);
@@ -296,6 +296,106 @@
           +'<h3 style="margin:16px 0 8px">Leads</h3>'+table([{key:'business_name',label:'Business'},{key:'city',label:'City'}],r.leads);
       }catch(ex){ document.getElementById('s_res').innerHTML='<div class="banner">'+esc(ex.message)+'</div>'; }
     });
+  }
+
+  // --- project workspace ---
+  var STATUS_WORKFLOW=["New Lead","Quote Submitted","Quote Under Review","Proposal Sent","Proposal Revision","Proposal Approved","Contract Sent","Contract Signed","Deposit Pending","Deposit Paid","Planning","Design","Development","Internal Testing","Client Review","Revision 1","Revision 2","Final Approval","Final Payment Pending","Final Payment Received","Ready for Launch","Website Launched","Training","Project Delivered","Maintenance Active","Completed"];
+  var EMAIL_TEMPLATES={
+    welcome:{s:"Welcome to Websix",b:"Hi {name},\n\nThank you for choosing Websix! We're excited to build your website. Here's what happens next: we'll confirm your requirements, send your proposal, and get started once approved.\n\nBest,\nThe Websix team"},
+    "follow-up":{s:"Following up on your project",b:"Hi {name},\n\nJust following up on your website project. Do you have any questions, or shall we proceed to the next step?\n\nBest,\nThe Websix team"},
+    proposal:{s:"Your Websix proposal",b:"Hi {name},\n\nYour proposal is ready. It covers scope, timeline, deliverables and pricing. Let me know if you'd like any changes.\n\nBest,\nThe Websix team"},
+    invoice:{s:"Your Websix invoice",b:"Hi {name},\n\nYour invoice is ready. You can pay securely online — details to follow. Thank you!\n\nBest,\nThe Websix team"},
+    update:{s:"Project update",b:"Hi {name},\n\nA quick update on your website project: we're making good progress and will share the next milestone shortly.\n\nBest,\nThe Websix team"},
+    launch:{s:"Your website is live!",b:"Hi {name},\n\nGreat news — your website is now live! Take a look and let us know what you think.\n\nBest,\nThe Websix team"}
+  };
+  var CURRENT_WS=null, CURRENT_WS_CLIENT_NAME='there';
+  function wsVal(id){ var e=document.getElementById(id); return e?e.value:''; }
+
+  async function renderProjects(){
+    var rows=await api('/api/admin/projects');
+    var h='<div class="panel"><h3>Projects <span class="muted" style="font-weight:400;font-size:.85rem">— click a row to open its workspace</span></h3>';
+    if(!rows.length){ h+='<div class="empty">No projects yet.</div></div>'; C.innerHTML=h; return; }
+    h+='<div style="overflow:auto"><table><thead><tr><th>Ref</th><th>Client</th><th>Type</th><th>Status</th><th>Estimate</th><th>Created</th></tr></thead><tbody>';
+    h+=rows.map(function(r){ return '<tr style="cursor:pointer" data-ws="'+esc(r.public_id)+'"><td><b>'+esc(r.public_id)+'</b></td><td>'+esc(r.summary?'' : '')+'</td><td>'+esc(r.type)+'</td><td><span class="pill">'+esc(r.status)+'</span></td><td>'+(r.estimate_low?money(r.estimate_low):'')+'</td><td>'+esc((r.created_at||'').slice(0,10))+'</td></tr>'; }).join('');
+    h+='</tbody></table></div></div>';
+    C.innerHTML=h;
+    C.querySelectorAll('[data-ws]').forEach(function(tr){ tr.addEventListener('click',function(){ openWorkspace(tr.getAttribute('data-ws')); }); });
+  }
+
+  async function openWorkspace(ref){
+    T.textContent='Project '+ref;
+    C.innerHTML='<div class="empty">Loading workspace…</div>';
+    try{ var w=await api('/api/admin/projects/'+encodeURIComponent(ref)+'/workspace'); renderWorkspace(w); }
+    catch(ex){ C.innerHTML='<div class="banner">'+esc(ex.message)+'</div>'; }
+  }
+
+  function renderWorkspace(w){
+    var p=w.project, c=w.client||{}, ref=p.public_id; CURRENT_WS=ref;
+    var data={}; try{ data=JSON.parse(p.data||'{}'); }catch(e){} var f=data.fields||{};
+    CURRENT_WS_CLIENT_NAME=c.contact_name||c.business_name||f.contact_name||f.biz_name||'there';
+    var idx=STATUS_WORKFLOW.indexOf(p.status); var pct=idx>=0?Math.round((idx+1)/STATUS_WORKFLOW.length*100):0;
+    var budget=p.estimate_low||0, paid=w.paid||0, bal=budget-paid;
+    var statusOpts=STATUS_WORKFLOW.map(function(s){return '<option'+(s===p.status?' selected':'')+'>'+esc(s)+'</option>';}).join('');
+    var h='';
+    h+='<button class="btn ghost sm" id="wsBack">← All projects</button>';
+    h+='<div class="panel" style="margin-top:12px"><div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;align-items:center">'
+      +'<div><h3 style="margin:0">'+esc(c.business_name||f.biz_name||'Project')+' <span class="muted">'+esc(ref)+'</span></h3><div class="muted" style="font-size:.85rem">'+esc(p.type||'')+' · created '+esc((p.created_at||'').slice(0,10))+'</div></div>'
+      +'<div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap"><div><label style="font-size:.75rem">Status</label><select id="wsStatus">'+statusOpts+'</select></div><div><label style="font-size:.75rem">or custom</label><input id="wsStatusCustom" placeholder="custom…" style="width:120px"></div><button class="btn sm" id="wsStatusBtn">Update</button></div>'
+      +'</div></div>';
+    h+='<div class="cards">'
+      +'<div class="card"><div class="k">Progress</div><div class="v">'+pct+'%</div></div>'
+      +'<div class="card"><div class="k">Budget (est.)</div><div class="v">'+money(budget)+'</div></div>'
+      +'<div class="card"><div class="k">Paid</div><div class="v">'+money(paid)+'</div></div>'
+      +'<div class="card"><div class="k">Balance</div><div class="v">'+money(bal)+'</div></div></div>';
+    h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:18px" class="ws-grid">';
+    h+='<div class="panel"><h3>Client</h3><div style="font-size:.9rem;line-height:1.9">'
+      +'<div><b>Business:</b> '+esc(c.business_name||f.biz_name||'-')+'</div>'
+      +'<div><b>Contact:</b> '+esc(c.contact_name||f.contact_name||'-')+'</div>'
+      +'<div><b>Email:</b> '+esc(c.email||f.contact_email||'-')+'</div>'
+      +'<div><b>Phone:</b> '+esc(c.phone||f.contact_phone||'-')+'</div>'
+      +'<div><b>Industry:</b> '+esc(f.industry||'-')+'</div>'
+      +'<div><b>Goals:</b> '+esc(f.goals||f.cur_goals||'-')+'</div>'
+      +'<div><b>Timeline:</b> '+esc(f.timeline||'-')+' · <b>Budget:</b> '+esc(f.budget||'-')+'</div></div></div>';
+    h+='<div class="panel"><h3>Website / Domain / Hosting</h3>'
+      +'<div class="field"><label>Live URL</label><input id="ws_website_url" value="'+esc(p.website_url||f.cur_url||'')+'"></div>'
+      +'<div class="field"><label>Staging URL</label><input id="ws_staging_url" value="'+esc(p.staging_url||'')+'"></div>'
+      +'<div class="field"><label>Domain</label><input id="ws_domain" value="'+esc(p.domain||'')+'"></div>'
+      +'<div class="field"><label>Hosting</label><input id="ws_hosting" value="'+esc(p.hosting||'')+'"></div>'
+      +'<div class="field"><label>Maintenance plan</label><input id="ws_maintenance_plan" value="'+esc(p.maintenance_plan||'')+'"></div>'
+      +'<button class="btn sm" id="wsSiteBtn">Save website info</button></div>';
+    h+='<div class="panel"><h3>Invoices &amp; payments</h3>'+table([{key:'amount',label:'Amount',get:function(r){return money(r.amount);}},{key:'status',label:'Status'},{key:'created_at',label:'Created',get:function(r){return (r.created_at||'').slice(0,10);}}], w.invoices)
+      +'<div class="row-form" style="margin-top:10px"><div><label>New invoice (USD)</label><input id="ws_inv_amt" type="number"></div><div><button class="btn sm" id="wsInvBtn">Create &amp; email invoice</button></div></div><div class="err" id="wsInvErr"></div></div>';
+    h+='<div class="panel"><h3>Tasks</h3><div id="wsTasks">'+(w.tasks.length? w.tasks.map(function(t){return '<div style="display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid var(--line)"><span>'+(t.status==='done'?'✓ ':'')+esc(t.title)+' <span class="muted" style="font-size:.78rem">'+esc(t.priority||'')+(t.due_date?(' · due '+esc(t.due_date)):'')+'</span></span>'+(t.status!=='done'?'<button class="btn ghost sm" data-taskdone="'+esc(t.id)+'">Done</button>':'')+'</div>';}).join(''):'<div class="empty">No tasks.</div>')+'</div>'
+      +'<div class="row-form" style="margin-top:10px"><div style="flex:1"><label>New task</label><input id="ws_task_title"></div><div><label>Priority</label><select id="ws_task_pri"><option>normal</option><option>high</option><option>low</option></select></div><div><label>Due</label><input id="ws_task_due" type="date"></div><div><button class="btn sm" id="wsTaskBtn">Add</button></div></div></div>';
+    h+='<div class="panel"><h3>Notes</h3><div id="wsNotes">'+(w.notes.length? w.notes.map(function(n){return '<div style="padding:6px 0;border-bottom:1px solid var(--line);font-size:.9rem">'+(n.pinned?'📌 ':'')+esc(n.body)+'</div>';}).join(''):'<div class="empty">No notes.</div>')+'</div>'
+      +'<div class="row-form" style="margin-top:10px"><div style="flex:1"><label>New note</label><input id="ws_note_body"></div><div><label style="font-weight:400;font-size:.8rem"><input type="checkbox" id="ws_note_pin"> pin</label></div><div><button class="btn sm" id="wsNoteBtn">Add</button></div></div></div>';
+    h+='<div class="panel"><h3>Internal messages</h3><div id="wsMsgs" style="max-height:170px;overflow:auto">'+(w.messages.length? w.messages.map(function(mm){return '<div style="padding:4px 0;font-size:.88rem"><b>'+esc(mm.sender)+':</b> '+esc(mm.body)+'</div>';}).join(''):'<div class="empty">No messages.</div>')+'</div>'
+      +'<div class="row-form" style="margin-top:8px"><div style="flex:1"><input id="ws_msg" placeholder="Add an internal note/message"></div><div><button class="btn sm" id="wsMsgBtn">Post</button></div></div></div>';
+    h+='<div class="panel"><h3>Email the client</h3>'
+      +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">'+Object.keys(EMAIL_TEMPLATES).map(function(k){return '<button class="btn ghost sm" data-tpl="'+esc(k)+'">'+esc(k)+'</button>';}).join('')+'</div>'
+      +'<div class="field"><label>To</label><input id="ws_em_to" value="'+esc(c.email||f.contact_email||'')+'"></div>'
+      +'<div class="field"><label>Subject</label><input id="ws_em_subj"></div>'
+      +'<div class="field"><label>Message</label><textarea id="ws_em_body" rows="5"></textarea></div>'
+      +'<button class="btn sm" id="wsEmailBtn">Send email</button><div class="err" id="wsEmailErr"></div></div>';
+    h+='</div>';
+    h+='<div class="panel"><h3>Timeline</h3>'+table([{key:'type',label:'Event'},{key:'message',label:'Detail'},{key:'created_at',label:'When',get:function(r){return (r.created_at||'').replace('T',' ').slice(0,16);}}], w.activities)+'</div>';
+    C.innerHTML=h;
+    wireWorkspace(ref);
+  }
+
+  function wireWorkspace(ref){
+    var refresh=function(){ openWorkspace(ref); };
+    var post=function(sub,body,method){ return api('/api/admin/projects/'+encodeURIComponent(ref)+sub,{method:method||'POST',body:body||{}}); };
+    document.getElementById('wsBack').onclick=function(){ CURRENT_WS=null; renderView('projects'); };
+    document.getElementById('wsStatusBtn').onclick=async function(){ var s=(wsVal('wsStatusCustom')||'').trim()||wsVal('wsStatus'); try{ await post('/status',{status:s},'PATCH'); refresh(); }catch(ex){ alert(ex.message); } };
+    document.getElementById('wsSiteBtn').onclick=async function(){ try{ await post('/website',{website_url:wsVal('ws_website_url'),staging_url:wsVal('ws_staging_url'),domain:wsVal('ws_domain'),hosting:wsVal('ws_hosting'),maintenance_plan:wsVal('ws_maintenance_plan')},'PATCH'); alert('Website info saved'); }catch(ex){ alert(ex.message); } };
+    document.getElementById('wsInvBtn').onclick=async function(){ var a=Number(wsVal('ws_inv_amt')); if(!a){ document.getElementById('wsInvErr').textContent='Enter an amount'; return; } try{ await post('/invoice',{amount:a}); refresh(); }catch(ex){ document.getElementById('wsInvErr').textContent=ex.message; } };
+    document.getElementById('wsTaskBtn').onclick=async function(){ var t=wsVal('ws_task_title').trim(); if(!t)return; try{ await post('/tasks',{title:t,priority:wsVal('ws_task_pri'),due_date:wsVal('ws_task_due')}); refresh(); }catch(ex){ alert(ex.message); } };
+    Array.prototype.forEach.call(document.querySelectorAll('[data-taskdone]'),function(b){ b.onclick=async function(){ try{ await api('/api/admin/tasks/'+b.getAttribute('data-taskdone'),{method:'PATCH',body:{status:'done'}}); refresh(); }catch(ex){ alert(ex.message); } }; });
+    document.getElementById('wsNoteBtn').onclick=async function(){ var b=wsVal('ws_note_body').trim(); if(!b)return; try{ await post('/notes',{body:b,pinned:document.getElementById('ws_note_pin').checked}); refresh(); }catch(ex){ alert(ex.message); } };
+    document.getElementById('wsMsgBtn').onclick=async function(){ var b=wsVal('ws_msg').trim(); if(!b)return; try{ await post('/messages',{body:b}); refresh(); }catch(ex){ alert(ex.message); } };
+    Array.prototype.forEach.call(document.querySelectorAll('[data-tpl]'),function(b){ b.onclick=function(){ var t=EMAIL_TEMPLATES[b.getAttribute('data-tpl')]; document.getElementById('ws_em_subj').value=t.s; document.getElementById('ws_em_body').value=t.b.split('{name}').join(CURRENT_WS_CLIENT_NAME); }; });
+    document.getElementById('wsEmailBtn').onclick=async function(){ var to=wsVal('ws_em_to').trim(); if(!to){ document.getElementById('wsEmailErr').textContent='Recipient required'; return; } try{ await post('/email',{to:to,subject:wsVal('ws_em_subj'),body:wsVal('ws_em_body')}); document.getElementById('wsEmailErr').textContent=''; alert('Email sent'); refresh(); }catch(ex){ document.getElementById('wsEmailErr').textContent=ex.message; } };
   }
 
   // --- start ---
